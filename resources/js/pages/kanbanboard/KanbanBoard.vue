@@ -79,8 +79,8 @@
                         }
                         return response.json();
                     })
-                    .catch(error => {
-                        console.error('Error fetching lists:', error);
+                    .catch(err => {
+                        console.error('Error fetching lists:', err);
                     });
             },
     
