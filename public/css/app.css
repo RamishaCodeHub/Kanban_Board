@@ -1,0 +1,40 @@
+* {
+    color: black;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    background-color: black;
+}
+
+.card-body {
+    border: none;
+}
+
+.card-item {
+    margin-bottom: 10px;
+}
+
+.card-item-body {
+    background-color: grey;
+    color: black;
+    border-radius: 5px;
+    padding: 9px;
+}
+
+.container {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header{
+    color: white;
+    background-color: #000000;
+}
+
+.main-body {
+    background-repeat: no-repeat;
+    background-size: cover;
+}
