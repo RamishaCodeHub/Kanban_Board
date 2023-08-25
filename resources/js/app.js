@@ -7,10 +7,15 @@ import "primevue/resources/primevue.min.css"; /* Deprecated */
 import "primeicons/primeicons.css";
 
 import { createApp } from 'vue';
-// import PrimeVue from 'primevue/config';
-
+import { createRouter, createWebHistory } from 'vue-router';
+import store from './store';
+import App from './pages/kanbanboard/App.vue';
 import KanbanBoard from './pages/kanbanboard/KanbanBoard.vue';
-// import Sidebar from 'primevue/sidebar';
+import Chat from './pages/kanbanboard/Chat.vue';
+import Login from './pages/kanbanboard/Login.vue';
+import Dashboard from './pages/kanbanboard/Dashboard.vue'; 
+import Register from './pages/kanbanboard/Register.vue';
+
 
 import PrimeVue from "primevue/config";
 import AutoComplete from 'primevue/autocomplete';
@@ -110,7 +115,55 @@ import TreeTable from 'primevue/treetable';
 import TriStateCheckbox from 'primevue/tristatecheckbox';
 import VirtualScroller from 'primevue/virtualscroller';
 
-const app = createApp(KanbanBoard);
+const routes = [
+
+    { path: '/', name:'login', component: Login },
+    { path: '/register',name:'register', component: Register },
+    { path: '/dashboard',name:'dashboard', component: Dashboard,
+    meta: {
+      requiresAuth: true
+    },
+  },
+  { path: '/chat', name:'chat', component: Chat,
+  meta: {
+    requiresAuth: true
+  },
+  },
+    { path: '/kanban/:email?/:token?', name:'KanbanBoard', component: KanbanBoard,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  ];
+
+  // Create the router instance
+  const router = createRouter({
+      history: createWebHistory(),
+      routes,
+    });
+  
+
+
+const app = createApp(App);
+
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth) {
+    if (!store.getters.isLoggedIn) {
+      if(to.name === "KanbanBoard" || to.name === "dashboard" || to.name === "chat" && (to.query.email === undefined || to.query.token === undefined))
+      {
+        next({ name: 'login' })
+      }
+      else{
+        next()
+      }
+    } else {
+      next() // go to wherever I'm going
+    }
+  } else {
+    next() // does not require auth, make sure to always call next()!
+  }
+});
 
 app.use(PrimeVue, { ripple: true });
 app.use(ConfirmationService);
@@ -212,5 +265,7 @@ app.component('TreeTable', TreeTable);
 app.component('TriStateCheckbox', TriStateCheckbox);
 app.component('VirtualScroller', VirtualScroller);
 
+app.use(store);
+app.use(router);
 app.mount('#app');
 

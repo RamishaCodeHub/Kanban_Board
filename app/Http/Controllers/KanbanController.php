@@ -1,8 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WebsiteLinkEmail;
 use App\Models\Card;
 use App\Models\Card_Status;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 
@@ -12,6 +17,7 @@ class KanbanController extends Controller
     {
         $cardStatus = Card_Status::with('cards')->get();
         return response()->json($cardStatus);
+    
     }
 
     public function storeCard(Request $request)
@@ -56,4 +62,5 @@ class KanbanController extends Controller
     
         return response()->json($card);
     }
+
 }

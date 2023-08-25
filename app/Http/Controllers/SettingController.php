@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Storage;
 use File;
 
@@ -27,40 +28,17 @@ class SettingController extends Controller
         return response()->json(['value' => $value]);
     }
 
-   
     public function setBackgroundImage(Request $request)
-   {
-    $request->validate([
-        'image' => 'required|image|mimes:jpeg,png,jpg,gif',
-    ]);
+    {
+        $value = $request->input('value');
 
-    // Get the old image filename from the database
-    $setting = Setting::where('key', 'background_image')->first();
-    $oldImageFilename = $setting ? $setting->value : null;
-
-    // Delete the old image (if it exists)
-    if ($oldImageFilename) {
-        Storage::disk('public')->delete('app/public/images/' . $oldImageFilename);
-    }
-
-    // Store the new image in the "value" column and in the "public/storage/images" folder
-    if ($request->file()) {
-        $fileName = time() . '_' . $request->image->getClientOriginalName();
-        Storage::disk('public')->put('app/public/images/' . $fileName, File::get($request->file('image')));
-
-        if (!$setting) {
-            // If the setting record doesn't exist, create a new one
-            $setting = new Setting(['key' => 'background_image']);
-        }
-
-        // Update the "value" column in the database
-        $setting->value = $fileName;
+        $setting = Setting::firstOrCreate(['key' => 'background_image']);
+        $setting->value = $value;
         $setting->save();
+
+        return response()->json(['value' => $setting->value]);
     }
 
-    return response()->json(['value' => $setting->value]);
-}
-    
     public function getBackgroundImage()
     {
         $setting = Setting::where('key', 'background_image')->first();

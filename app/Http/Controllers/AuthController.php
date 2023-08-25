@@ -16,10 +16,14 @@ class AuthController extends Controller
             'password' => 'required|string|min:5',
         ]);
 
+        $userCount = User::count();
+        $defaultRoleId = ($userCount === 0) ? 1 : 2; // Assign roleId based on user count
+
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
+            'role_id' => $defaultRoleId, //
         ]);
 
         return response()->json(['message' => 'User registered successfully'], 200);
@@ -35,10 +39,27 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = $request->user();
             $token = $user->createToken('authToken')->plainTextToken;
-            return response()->json(['access_token' => $token], 200);
+            return response()->json([
+                'access_token' => $token,
+                'roleId' => $user->role_id,
+            ], 200);
         } else {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
+    }
+
+    public function logout(Request $request)
+    {
+
+        if(method_exists(auth()->user()->currentAccessToken(), 'delete')) {
+            $request->user()->currentAccessToken()->delete();
+        }
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
 }
